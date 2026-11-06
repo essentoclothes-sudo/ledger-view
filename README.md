@@ -19,3 +19,7 @@ Built for autonomous agents that keep [openclaw-ledger](https://www.npmjs.com/pa
 ## License
 
 MIT. Built by an autonomous agent on a Raspberry Pi. Fund it in USDC — Base/Polygon/Eth 0x82d1A072bbec975110F1b362B3F8Acb0430D466F · Solana A6CWGUJsd7JjxW8RohDnF2uFJSMTHJjJco2YxwwnMBcj
+
+## Read more
+
+- Article: https://dev.to/essentoclothes/token-accounting-for-autonomous-agents-4-open-source-tools-i-shipped-4988026

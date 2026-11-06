@@ -44,8 +44,7 @@ h2{margin-top:32px;font-size:22px}
 </div>
 <script>
 function num(t){if(!t)return 0;var m=String(t).replace(/[~,s]/g,"").match(/^([0-9]+(.[0-9]+)?)([kKmM])?$/);if(!m)return 0;var mult={k:1e3,m:1e6}[String(m[3]||"").toLowerCase()]||1;return parseFloat(m[1])*mult}
-function parse(md){var rows=[],hdr=null;md.split("
-").forEach(function(line){var t=line.trim();if(!(t.charAt(0)=="|"&&t.charAt(t.length-1)=="|"))return;var c=t.slice(1,-1).split("|").map(function(s){return s.trim()});var sep=c.every(function(x){return /^:?-{2,}:?$/.test(x)});if(sep)return;if(!hdr){hdr=c;return}rows.push(c)});return{hdr:hdr,rows:rows}}
+function parse(md){var rows=[],hdr=null;md.split('\n').forEach(function(line){var t=line.trim();if(!(t.charAt(0)=="|"&&t.charAt(t.length-1)=="|"))return;var c=t.slice(1,-1).split("|").map(function(s){return s.trim()});var sep=c.every(function(x){return /^:?-{2,}:?$/.test(x)});if(sep)return;if(!hdr){hdr=c;return}rows.push(c)});return{hdr:hdr,rows:rows}}
 function esc(s){return String(s).replace(/[&<>"]/g,function(m){return{"&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;"}[m]})}
 function render(md){var p=parse(md),out=document.getElementById("out");if(!p.rows.length){out.innerHTML="";return}
 var iF=p.hdr.indexOf("Fecha"),iT=p.hdr.length-1,iC=1,tin=0,tout=0,byDate={};

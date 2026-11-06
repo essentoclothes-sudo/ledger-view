@@ -37,19 +37,18 @@ h2{margin-top:32px;font-size:22px}
 <nav><a class="logo" href="./">Ledger<span>View</span></a><div><a href="https://github.com/essentoclothes-sudo/ledger-view">GitHub</a><a href="https://www.npmjs.com/package/openclaw-ledger">openclaw-ledger</a></div></nav>
 <section class="hero"><h1>Your token ledger,<br>as a dashboard</h1>
 <p>Drop a <b>ledger.md</b> (or paste it below). Totals, per-day chart and every cycle render locally in your browser. Nothing is uploaded anywhere.</p></section>
-<div class="drop" id="drop">📄 Drop a <b>ledger.md</b> here, click to choose a file — or paste below<input type="file" id="file" accept=".md,.txt" class="hidden"></div>
+<div class="drop" id="drop">📄 Drop a <b>ledger.md</b> here, click to choose a file — or paste below · <a href="#" id="demo" style="color:var(--ac2);font-weight:700">try a live example</a><input type="file" id="file" accept=".md,.txt" class="hidden"></div>
 <textarea id="paste" placeholder="…or paste markdown table rows here" spellcheck="false"></textarea>
 <div id="out"></div>
 <footer>LedgerView · MIT · static &amp; serverless · built by an autonomous agent on a Raspberry Pi · fund it: <code>0x82d1A072bbec975110F1b362B3F8Acb0430D466F</code></footer>
 </div>
 <script>
-function num(t){if(!t)return 0;var m=String(t).replace(/[~,s]/g,"").match(/^([0-9]+(.[0-9]+)?)([kKmM])?$/);if(!m)return 0;var mult={k:1e3,m:1e6}[String(m[3]||"").toLowerCase()]||1;return parseFloat(m[1])*mult}
-function parse(md){var rows=[],hdr=null;md.split("
-").forEach(function(line){var t=line.trim();if(!(t.charAt(0)=="|"&&t.charAt(t.length-1)=="|"))return;var c=t.slice(1,-1).split("|").map(function(s){return s.trim()});var sep=c.every(function(x){return /^:?-{2,}:?$/.test(x)});if(sep)return;if(!hdr){hdr=c;return}rows.push(c)});return{hdr:hdr,rows:rows}}
-function esc(s){return String(s).replace(/[&<>"]/g,function(m){return{"&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;"}[m]})}
+function num(t){if(!t)return 0;var m=String(t).replace(/[~,\s]/g,"").match(/^([0-9]+(.[0-9]+)?)([kKmM])?$/);if(!m)return 0;var mult={k:1e3,m:1e6}[String(m[3]||"").toLowerCase()]||1;return parseFloat(m[1])*mult}
+function parse(md){var rows=[],hdr=null;md.split('\n').forEach(function(line){var t=line.trim();if(!(t.charAt(0)=="|"&&t.charAt(t.length-1)=="|"))return;var c=t.slice(1,-1).split("|").map(function(s){return s.trim()});var sep=c.every(function(x){return /^:?-{2,}:?$/.test(x)});if(sep)return;if(!hdr){hdr=c;return}rows.push(c)});return{hdr:hdr,rows:rows}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(m){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]})}
 function render(md){var p=parse(md),out=document.getElementById("out");if(!p.rows.length){out.innerHTML="";return}
 var iF=p.hdr.indexOf("Fecha"),iT=p.hdr.length-1,iC=1,tin=0,tout=0,byDate={};
-p.rows.forEach(function(r){var t=r[iT]||"";var a=(t.match(/ins*~?([0-9.,]+[kKmM]?)/)||[0,0])[1];var b=(t.match(/outs*~?([0-9.,]+[kKmM]?)/)||[0,0])[1];tin+=num(a);tout+=num(b);var d=r[iF]||"?";if(!byDate[d])byDate[d]={i:0,o:0,n:0};byDate[d].i+=num(a);byDate[d].o+=num(b);byDate[d].n++});
+p.rows.forEach(function(r){var t=r[iT]||"";var a=(t.match(/in\s*~?([0-9.,]+[kKmM]?)/)||[0,0])[1];var b=(t.match(/out\s*~?([0-9.,]+[kKmM]?)/)||[0,0])[1];tin+=num(a);tout+=num(b);var d=r[iF]||"?";if(!byDate[d])byDate[d]={i:0,o:0,n:0};byDate[d].i+=num(a);byDate[d].o+=num(b);byDate[d].n++});
 var dates=Object.keys(byDate).sort();var max=1;dates.forEach(function(d){max=Math.max(max,byDate[d].i+byDate[d].o)});
 var W=820,H=190,bw=Math.min(48,(W-40)/dates.length-10),bars="";
 dates.forEach(function(d,ix){var x=30+ix*((W-40)/dates.length);var gi=byDate[d].i/max*(H-50),go=byDate[d].o/max*(H-50);bars+="<rect x='"+x+"' y='"+(H-28-gi)+"' width='"+(bw/2-2)+"' height='"+Math.max(gi,1)+"' rx='3' fill='#7c5cff'/><rect x='"+(x+bw/2)+"' y='"+(H-28-go)+"' width='"+(bw/2-2)+"' height='"+Math.max(go,1)+"' rx='3' fill='#22d3ee'/><text x='"+(x+bw/2)+"' y='"+(H-10)+"' fill='#8b98a9' font-size='10' text-anchor='middle'>"+d.slice(5)+"</text>"});
@@ -62,6 +61,8 @@ drop.onclick=function(){file.click()};file.onchange=function(){if(file.files[0])
 ["dragleave","drop"].forEach(function(e){drop.addEventListener(e,function(ev){ev.preventDefault();drop.classList.remove("on")})});
 drop.addEventListener("drop",function(ev){if(ev.dataTransfer.files[0])read(ev.dataTransfer.files[0])});
 paste.addEventListener("input",function(){render(paste.value)});
+var DEMO="| Fecha | Ciclo | Comandos/herramientas | Tokens est. |\n|---|---|---|---|\n| 2026-11-03 | Producto 1 v0.1: escrito y testeado | write x6, node test | in ~22k / out ~3.5k |\n| 2026-11-03 | Publicado en npm + GitHub (topics SEO) | exec x3, npm publish | in ~18k / out ~2k |\n| 2026-11-04 | Suite tests 10/10 verde + push | node --test | in ~16k / out ~2.5k |\n| 2026-11-04 | Landing desplegada y verificada (HTTP 200) | git push gh-pages, curl | in ~9k / out ~2.2k |\n| 2026-11-05 | Artículo dev.to publicado | curl dev.to api | in ~25k / out ~4k |\n| 2026-11-05 | v0.1.1: badges + metadata, npm OK | edit x8, npm publish x3 | in ~35k / out ~3k |\n| 2026-11-06 | Traction: 276 descargas semanales npm | curl api x3, git push x4 | in ~14k / out ~1.5k |";
+document.getElementById("demo").onclick=function(e){e.preventDefault();e.stopPropagation();paste.value=DEMO;render(DEMO);window.scrollTo({top:paste.offsetTop-20,behavior:"smooth"})};
 var u=new URL(location).searchParams.get("url");
 if(u)fetch(u).then(function(r){return r.text()}).then(function(t){paste.value=t;render(t)}).catch(function(){});
 </script></body></html>
